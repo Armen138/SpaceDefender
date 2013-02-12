@@ -1,5 +1,5 @@
 define(["canvas", "resources", "keys", "ParticleSystem"], function(Canvas, Resources, keys, PS) {
-	Canvas.size(800, 800);
+	Canvas.size(window.innerWidth, window.innerHeight);
 	var bulletPS = function() {
 		return {"emitterStartLocation":{"x":0,"y":0},"emitterStopLocation":{"x":0,"y":0},"systemLifeSpan":0,"particleSpawnArea":{"x":0,"y":0},"maxParticles":300,"averageLifeSpan":0.3,"lifeSpanVariance":0.1,"startColor":{"red":255,"green":167,"blue":63,"alpha":1},"stopColor":{"red":0,"green":0,"blue":0,"alpha":1},"averageVelocity":{"horizontal":0,"vertical":0},"velocityVariance":{"x":0.3,"y":0.3},"minParticleSize":2,"maxParticleSize":4,"particleFadeTime":0.6,"globalCompositeOperation":"lighter","renderType":"spriteSheet","type":"relative"};
 	};
@@ -201,7 +201,7 @@ define(["canvas", "resources", "keys", "ParticleSystem"], function(Canvas, Resou
 		}
 	};
 	setInterval(function() {
-		enemies.push(enemy({X: Math.random() * 800 | 0, Y: 0}));
+		enemies.push(enemy({X: Math.random() * Canvas.width | 0, Y: 0}));
 	}, 1000);
 	window.addEventListener("keyup", function(e){		
 		down[e.keyCode] = false;
