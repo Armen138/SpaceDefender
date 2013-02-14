@@ -49,11 +49,11 @@ Controls
 The following control-schemes are supported:
 
 _Keyboard_
-Move ship: Arrow keys
-Fire weapon: Space-bar
-Fire alt weapon: Alt
+* Move ship: Arrow keys
+* Fire weapon: Space-bar
+* Fire alt weapon: Alt
 
 _Xbox Gamepad_
-Move ship: Left stick
-Fire weapon: A
-Fire alt weapon: B
+* Move ship: Left stick
+* Fire weapon: A
+* Fire alt weapon: B
