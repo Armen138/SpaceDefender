@@ -11,6 +11,8 @@ The player can accellerate, decelerate and move left/right. The ship's primary w
 
 Enemies will come down from the top of the screen and travel in the opposite direction. Enemies will come in different sizes and abilities, some with shields and/or weapons of their own.
 
+The player will start with 3 lives. A life is lost when the player's hitpoints reach 0 or when an enemy ship reaches the bottom of the screen.
+
 Waves
 =====
 
@@ -40,3 +42,18 @@ In addition, the following _ship_ upgrades may be found:
 * Shield
 * Heavy Shield
 * Extra life
+
+Controls
+========
+
+The following control-schemes are supported:
+
+_Keyboard_
+Move ship: Arrow keys
+Fire weapon: Space-bar
+Fire alt weapon: Alt
+
+_Xbox Gamepad_
+Move ship: Left stick
+Fire weapon: A
+Fire alt weapon: B
