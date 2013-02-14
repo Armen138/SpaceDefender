@@ -1,5 +1,8 @@
-define(["canvas", "resources", "keys", "ParticleSystem"], function(Canvas, Resources, keys, PS) {
+define(["canvas", "resources", "keys", "menu", "raf", "ParticleSystem"], function(Canvas, Resources, keys, Menu, raf, PS) {
 	Canvas.size(window.innerWidth, window.innerHeight);
+	//Canvas.size(1080, 700);
+	//Canvas.element.style.width = "auto";
+	//Canvas.element.style.height = "100%";
 	var bulletPS = function() {
 		return {"emitterStartLocation":{"x":0,"y":0},"emitterStopLocation":{"x":0,"y":0},"systemLifeSpan":0,"particleSpawnArea":{"x":0,"y":0},"maxParticles":300,"averageLifeSpan":0.3,"lifeSpanVariance":0.1,"startColor":{"red":255,"green":167,"blue":63,"alpha":1},"stopColor":{"red":0,"green":0,"blue":0,"alpha":1},"averageVelocity":{"horizontal":0,"vertical":0},"velocityVariance":{"x":0.3,"y":0.3},"minParticleSize":2,"maxParticleSize":4,"particleFadeTime":0.6,"globalCompositeOperation":"lighter","renderType":"spriteSheet","type":"relative"};
 	};
@@ -12,9 +15,46 @@ define(["canvas", "resources", "keys", "ParticleSystem"], function(Canvas, Resou
 		console.log(Canvas.size());
 	});
 	Resources.load({
-		"ships": "images/spaceships_1.png"
+		"ships": "images/spaceships_1.png",
+		"logo": "images/spacedefender.png"
 	});	
 
+
+	var paused = Menu(Canvas.element, [
+			{
+				label: "Resume",
+				action: function() {
+					game.state = play;
+				}
+			},
+			{
+				label: "Menu",
+				action: function() {
+					game.state = home;
+				}
+			}
+		]);
+	var home = Menu(Canvas.element, [
+			{
+				label: "Play",
+				action: function() {
+					//alert("play");
+					game.state = play;
+				}
+			},
+			{
+				label: "Survival",
+				action: function() {
+					alert("survival");
+				}
+			},
+			{
+				label: "Credits",
+				action: function() {
+					alert("credits");
+				}
+			}
+		], Resources.images.logo);
 
 	var stars = function() {
 		var starMap = [];
@@ -142,19 +182,19 @@ define(["canvas", "resources", "keys", "ParticleSystem"], function(Canvas, Resou
 				}
 			}
 
-			if(down[game.controls.left]) {
+			if(down[play.controls.left]) {
 				ship.left();
 			}
-			if(down[game.controls.right]) {
+			if(down[play.controls.right]) {
 				ship.right();
 			}			
-			if(down[game.controls.up]) {
+			if(down[play.controls.up]) {
 				ship.up();
 			}			
-			if(down[game.controls.down]) {
+			if(down[play.controls.down]) {
 				ship.down();
 			}			
-			if(down[game.controls.fire]) {
+			if(down[play.controls.fire]) {
 				ship.fire();
 			}				
 		},
@@ -180,6 +220,7 @@ define(["canvas", "resources", "keys", "ParticleSystem"], function(Canvas, Resou
 	var down = {};
 	var enemies = [];
 	var starField = stars();
+	/*
 	var game = {
 		run: function() {
 			Canvas.clear("black");
@@ -199,16 +240,87 @@ define(["canvas", "resources", "keys", "ParticleSystem"], function(Canvas, Resou
 			right: keys.RIGHT,
 			fire: keys.SPACE
 		}
+	};*/
+
+	var play = {
+		init: function() {},
+		clear: function(cb) {
+			cb();
+		},
+		run: function() {
+			Canvas.clear("black");
+			starField.draw();
+			ship.draw();
+			for(var i = enemies.length - 1; i >= 0; --i) {
+				if(enemies[i].draw()) {
+					enemies.splice(i, 1);
+				}
+			}		
+		},
+		controls: {
+			up: keys.UP,
+			down: keys.DOWN,
+			left: keys.LEFT,
+			right: keys.RIGHT,
+			fire: keys.SPACE
+		}
 	};
+	var game = {
+			run: function() {
+				Canvas.clear();
+				if(game.state) {
+					game.state.run();	
+				}
+				raf.requestAnimationFrame.call(window, game.run);				
+			}
+		},
+		state = null;
+
+    Object.defineProperty(game, "state", {
+        get: function() {
+            return state;
+        },
+        set: function(newstate) {        	
+            if(state) {
+                state.clear(function() {
+                    newstate.init();
+                    state = newstate;                    
+                });
+            } else {
+                newstate.init();
+                state = newstate;                
+            }
+        }
+    });
+
+    game.state = home;
 	setInterval(function() {
 		enemies.push(enemy({X: Math.random() * Canvas.width | 0, Y: 0}));
 	}, 1000);
+
+    window.addEventListener("blur", function() {
+        if(game.state == play) {
+            game.state = paused;            
+        }
+    });
+	
 	window.addEventListener("keyup", function(e){		
 		down[e.keyCode] = false;
+		if(e.keyCode === 27 || e.keyCode === 19) {
+			if(game.state == play) {
+				game.state = paused;
+			}
+		}
 	});
 	window.addEventListener("keydown", function(e) {
 		down[e.keyCode] = true;
 		e.preventDefault();
+	});
+
+	window.addEventListener("click", function(e) {
+		if(game.state && game.state.click) {
+			game.state.click({X: e.layerX, Y: e.layerY});
+		}
 	});
 	return game;
 });
