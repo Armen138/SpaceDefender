@@ -8,10 +8,10 @@
                         eventList[ev].push(f);
                         return obj;
                     },
-                    fire: function(ev, obj) {
+                    fire: function(ev, evobj) {
                         if(eventList[ev]) {
                             for(var i = 0; i < eventList[ev].length; i++) {
-                                if(eventList[ev][i](obj)) {
+                                if(eventList[ev][i].call(obj, evobj)) {
                                     return;
                                 }
                             }
