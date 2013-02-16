@@ -5,6 +5,13 @@ define(["canvas"], function(Canvas) {
 		var scaleTime = 50;
 		var scale = 0.5;
 		var inc = 0.1;
+		var dead = false;
+		function distance(p1, p2) {
+			return Math.max(
+					Math.abs(p1.X - p2.X),
+					Math.abs(p1.Y - p2.Y)
+				);
+		}
 		return {
 			draw: function() {
 				//scale = 0.5 + ((Date.now() - start) % 50 / 50);
@@ -20,6 +27,13 @@ define(["canvas"], function(Canvas) {
 				Canvas.context.scale(scale, scale);
 				Canvas.context.drawImage(image, -1 * (image.width / 2) * scale,  -1 * (image.height / 2) * scale);
 				Canvas.context.restore();
+				return dead;
+			}, 
+			collect: function(target) {
+				if(distance(position, target) < 32) {
+					dead = true;
+					action.call(this);
+				}
 			}
 		};		
 	};

@@ -1,5 +1,14 @@
-define(["canvas", "resources", "keys", "menu", "stars", "enemy", "effects", "bullet", "powerup", "raf", "ParticleSystem"], function(Canvas, Resources, keys, Menu, Stars, Enemy, effects, Bullet, Powerup, raf, PS) {
-	Canvas.size(window.innerWidth, window.innerHeight);
+define(["canvas", "resources", "keys", "menu", "stars", "enemy", "effects", "bullet", "powerup", "raf", "ParticleSystem", "stats.min"], function(Canvas, Resources, keys, Menu, Stars, Enemy, effects, Bullet, Powerup, raf, PS) {
+	//Canvas.size(window.innerWidth, window.innerHeight);
+
+	Canvas.size(800, 600);
+
+	var stats = new Stats();
+	stats.domElement.style.position = 'absolute';
+	stats.domElement.style.left = '0px';
+	stats.domElement.style.top = '0px';
+
+	document.body.appendChild( stats.domElement );
 
 	Resources.on("load", function() {
 		console.log("loaded");
@@ -9,7 +18,9 @@ define(["canvas", "resources", "keys", "menu", "stars", "enemy", "effects", "bul
 	Resources.load({
 		"ships": "images/spaceships_1.png",
 		"logo": "images/spacedefender.png",
-		"bomb": "images/fire-bomb.png"
+		"bomb": "images/fire-bomb.png",
+		"shield": "images/edged-shield.png",
+		"star": "images/star.png"
 	});	
 
 
@@ -53,11 +64,13 @@ define(["canvas", "resources", "keys", "menu", "stars", "enemy", "effects", "bul
 	var bullets = [];
 	var lastShot = 0;
 	var shield = new PS.ParticleSystem(effects("shield"));
+	var burner = new PS.ParticleSystem(effects("afterburner"));
 	var shieldAngle = 0;
 	var lastShield = 0;
 	var ship = {
 		X: 100,
 		Y: 100,
+		enableShield: false,
 		loadTime: 100,
 		draw: function() {
 			//264,945
@@ -74,8 +87,11 @@ define(["canvas", "resources", "keys", "menu", "stars", "enemy", "effects", "bul
 				if(shieldAngle > 2 * Math.PI) {
 					shieldAngle = 0;
 				}
-
-				shield.draw(Canvas.element, x, y, 17);
+				burner.draw(Canvas.element, ship.X + 11, ship.Y, 17);	
+				if(ship.enableShield) {
+					shield.draw(Canvas.element, x, y, 17);	
+				}
+				
 			for(var i = bullets.length -1; i >= 0; --i) {
 				if(bullets[i].draw()) {
 					bullets.splice(i, 1);
@@ -120,6 +136,7 @@ define(["canvas", "resources", "keys", "menu", "stars", "enemy", "effects", "bul
 	var down = {};
 	var enemies = [];
 	var powerups = [];
+	var systems = [];
 	var starField = Stars(Canvas);
 	var play = {
 		init: function() {},
@@ -136,8 +153,15 @@ define(["canvas", "resources", "keys", "menu", "stars", "enemy", "effects", "bul
 				}
 			}		
 			for(var i = powerups.length - 1; i >= 0; --i) {
+				powerups[i].collect({X: ship.X, Y: ship.Y} );
 				if(powerups[i].draw()) {
 					powerups.splice(i, 1);
+				}
+			}
+			for(var i = systems.length -1; i >= 0; --i) {
+				systems[i].effect.draw(Canvas.element, systems[i].X, systems[i].Y, 17);
+				if(systems[i].effect.isDone()) {
+					systems.splice(i, 1);
 				}
 			}					
 		},
@@ -151,11 +175,13 @@ define(["canvas", "resources", "keys", "menu", "stars", "enemy", "effects", "bul
 	};
 	var game = {
 			run: function() {
+				stats.begin();
 				Canvas.clear();
 				if(game.state) {
 					game.state.run();	
 				}
 				raf.requestAnimationFrame.call(window, game.run);				
+				stats.end();
 			}
 		},
 		state = null;
@@ -177,11 +203,36 @@ define(["canvas", "resources", "keys", "menu", "stars", "enemy", "effects", "bul
         }
     });
 
+    function getPowerup() {
+    	//play powerup noise
+    	//show particle fun
+    	var blast = new PS.ParticleSystem(effects("powerup", Resources.images.star));
+    	systems.push({
+    		effect: blast,
+    		X: ship.X,
+    		Y: ship.Y
+    	});
+    }
+
+    var shieldPowerup = {
+    	image: Resources.images.shield,
+    	action: function() {
+    		getPowerup();
+    		ship.enableShield = true;
+    	}
+    }
     game.state = home;
 	setInterval(function() {
 		var enemy = Enemy(Resources.images.ships, {X: Math.random() * Canvas.width | 0, Y: 0});
 		enemy.on("death", function() {
-			powerups.push(Powerup(Resources.images.bomb, function() { alert("boop"); }, this.position));
+			if(Math.random() > 0.9) {
+				powerups.push(Powerup(shieldPowerup.image, shieldPowerup.action, this.position));
+			}			
+			systems.push({
+				effect: new PS.ParticleSystem(effects("explosion")),
+				X: this.position.X,
+				Y: this.position.Y
+			});
 		});
 		enemies.push(enemy);
 	}, 1000);
