@@ -60,6 +60,16 @@ define(["canvas", "resources", "keys", "menu", "stars", "enemy", "effects", "bul
 			}
 		], Resources.images.logo);
 
+	var weapons = {
+		gun: {
+			loadTime: 100,
+			ammo: Bullet
+		},
+		rocket: {
+			loadTime: 1000,
+			ammo: Bullet
+		}
+	}
 
 	var bullets = [];
 	var lastShot = 0;
@@ -70,6 +80,9 @@ define(["canvas", "resources", "keys", "menu", "stars", "enemy", "effects", "bul
 	var ship = {
 		X: 100,
 		Y: 100,
+		hp: 100,
+		shield: 100,
+		currentWeapon: weapons.gun,
 		enableShield: false,
 		loadTime: 100,
 		draw: function() {
@@ -112,7 +125,10 @@ define(["canvas", "resources", "keys", "menu", "stars", "enemy", "effects", "bul
 			}			
 			if(down[play.controls.fire]) {
 				ship.fire();
-			}				
+			}	
+			if(ship.shield <= 0) {
+				ship.enableShield = false;
+			}			
 		},
 		left: function() {
 			ship.X -=10;
@@ -127,9 +143,9 @@ define(["canvas", "resources", "keys", "menu", "stars", "enemy", "effects", "bul
 			ship.Y += 10;
 		},
 		fire: function() {
-			if(Date.now() - lastShot > ship.loadTime) {
+			if(Date.now() - lastShot > ship.currentWeapon.loadTime) {
 				lastShot = Date.now();
-				bullets.push(Bullet({X: ship.X + 11, Y: ship.Y - 25}, enemies));				
+				bullets.push(ship.currentWeapon.ammo({X: ship.X + 11, Y: ship.Y - 25}, enemies));
 			}			
 		}
 	}
@@ -218,6 +234,7 @@ define(["canvas", "resources", "keys", "menu", "stars", "enemy", "effects", "bul
     	image: Resources.images.shield,
     	action: function() {
     		getPowerup();
+    		ship.shield = 100;
     		ship.enableShield = true;
     	}
     }
