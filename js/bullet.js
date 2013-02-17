@@ -1,16 +1,71 @@
 define(["ParticleSystem", "canvas", "effects"], function(PS, Canvas, effects) {
-	var bullet = function(position, enemies) {
+	function distance(p1, p2) {
+		return Math.max(
+				Math.abs(p1.X - p2.X),
+				Math.abs(p1.Y - p2.Y)
+			);
+	}	
+	var bullet = function(position, enemies, options) {
+		if(!options) {
+			options = {};
+		}
 		var start = Date.now();
-		var speed = 0.7;
+		var speed = options.speed || 0.7;
 		var dead = false;
+		var double = options.double || false;
+		var rocket = options.rocket || false;
+		var homing = options.homing || false;
 		var baseY = position.Y;
 		var baseX = position.X;
-		var trail = new PS.ParticleSystem(effects("bullet"));
+		var twistAngle = 0;
+		var rocketTrail = new PS.ParticleSystem(effects("shield"));
+		var trail = new PS.ParticleSystem(effects("bullet"));		
+		var lastDraw = Date.now();
 		var b = {
 			draw: function() {
-				trail.draw(Canvas.element, position.X, position.Y, 17);
-				position.Y = baseY - ((Date.now() - start) * speed);
-				//position.X = baseX - ((Date.now() - start) * speed);
+				if(!double) {
+					trail.draw(Canvas.element, position.X, position.Y, 17);	
+				} else {
+					trail.draw(Canvas.element, position.X - 10, position.Y, 17);
+					trail.draw(Canvas.element, position.X + 10, position.Y, 17);					
+				}
+				if(rocket) {
+					twistAngle += 0.4;
+					var twist = {
+						X: position.X + 16 * Math.cos(twistAngle), 
+						Y: position.Y
+					}
+					rocketTrail.draw(Canvas.element, twist.X, twist.Y, 17);					
+				}
+				if(homing && enemies.length > 0) {
+					var closest = null
+					for(var i = 0; i < enemies.length; i++) {
+						var d = distance(enemies[i].position, position);
+						if(!closest || closest.distance > d) {
+							closest = {
+								distance: d,
+								enemy: enemies[i]
+							}
+						}
+					}
+					var diff ={
+						X: position.X - closest.enemy.position.X,
+						Y: position.Y - closest.enemy.position.Y
+					} 
+					if(diff.X < 0) {
+						position.X += (Date.now() - lastDraw) * speed;
+					} else {
+						position.X -= (Date.now() - lastDraw) * speed;
+					}
+					if(diff.Y < 0) {
+						position.Y += (Date.now() - lastDraw) * speed;						
+					} else {
+						position.Y -= (Date.now() - lastDraw) * speed;
+					}
+				} else {
+					position.Y = baseY - ((Date.now() - start) * speed);
+					//position.X = baseX - ((Date.now() - start) * speed);					
+				}
 				if(position.Y < -10 && !dead) {
 					trail.kill();
 					dead = true;
@@ -23,6 +78,7 @@ define(["ParticleSystem", "canvas", "effects"], function(PS, Canvas, effects) {
 					   	dead = true;
 					   }
 				}
+				lastDraw = Date.now();
 				if(trail.isDone()) {
 					return true;
 				}

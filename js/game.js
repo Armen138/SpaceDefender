@@ -20,6 +20,10 @@ define(["canvas", "resources", "keys", "menu", "stars", "enemy", "effects", "bul
 		"logo": "images/spacedefender.png",
 		"bomb": "images/fire-bomb.png",
 		"shield": "images/edged-shield.png",
+		"doubleshot": "images/double-shot.png",
+		"heal": "images/heal.png",
+		"rocket": "images/rocket.png",
+		"homing": "images/on-target.png",
 		"star": "images/star.png"
 	});	
 
@@ -65,10 +69,24 @@ define(["canvas", "resources", "keys", "menu", "stars", "enemy", "effects", "bul
 			loadTime: 100,
 			ammo: Bullet
 		},
+		doubleBarrel: {
+			loadTime: 150,
+			ammo: function(position, enemies) {
+				return Bullet(position, enemies, { "double" : true, damage: 3 });
+			}			
+		},
 		rocket: {
-			loadTime: 1000,
-			ammo: Bullet
-		}
+			loadTime: 300,
+			ammo: function(position, enemies) {
+				return Bullet(position, enemies, { rocket: true, speed: 0.3, damage: 10 });
+			}
+		},
+		homingMissile: {
+			loadTime: 900,
+			ammo: function(position, enemies) {
+				return Bullet(position, enemies, { rocket: true, speed: 0.3, damage: 10, homing: true });
+			}
+		}		
 	}
 
 	var bullets = [];
@@ -222,6 +240,7 @@ define(["canvas", "resources", "keys", "menu", "stars", "enemy", "effects", "bul
     function getPowerup() {
     	//play powerup noise
     	//show particle fun
+    	powerupQueue.shift();
     	var blast = new PS.ParticleSystem(effects("powerup", Resources.images.star));
     	systems.push({
     		effect: blast,
@@ -238,12 +257,51 @@ define(["canvas", "resources", "keys", "menu", "stars", "enemy", "effects", "bul
     		ship.enableShield = true;
     	}
     }
+
+    var doublePowerup = {
+    	image: Resources.images.doubleshot,
+    	action: function() {
+    		getPowerup();
+    		ship.currentWeapon = weapons.doubleBarrel;
+    	}
+    }
+
+    var rocketPowerup = {
+    	image: Resources.images.rocket,
+    	action: function() {
+    		getPowerup();
+    		ship.currentWeapon = weapons.rocket;
+    	}
+    }
+
+    var homingPowerup = {
+    	image: Resources.images.homing,
+    	action: function() {
+    		getPowerup();
+    		ship.currentWeapon = weapons.homingMissile;
+    	}
+    }
+
+    var healPowerup = {
+    	image: Resources.images.heal,
+    	action: function() {
+    		getPowerup();
+    		ship.health = 100;
+    	}    	
+    }
+    var powerupQueue = [shieldPowerup, doublePowerup, rocketPowerup, homingPowerup, healPowerup];
     game.state = home;
 	setInterval(function() {
 		var enemy = Enemy(Resources.images.ships, {X: Math.random() * Canvas.width | 0, Y: 0});
 		enemy.on("death", function() {
+			var pu;
+			if(powerupQueue.length > 0) {
+				pu = powerupQueue[0];
+			} else {
+				pu = healPowerup;
+			}
 			if(Math.random() > 0.9) {
-				powerups.push(Powerup(shieldPowerup.image, shieldPowerup.action, this.position));
+				powerups.push(Powerup(pu.image, pu.action, this.position));
 			}			
 			systems.push({
 				effect: new PS.ParticleSystem(effects("explosion")),
@@ -267,6 +325,10 @@ define(["canvas", "resources", "keys", "menu", "stars", "enemy", "effects", "bul
 				game.state = paused;
 			}
 		}
+		/*if(e.keyCode === keys.SHIFT) {
+			console.log("switch to double shot");
+			ship.currentWeapon = weapons.doubleBarrel;
+		}*/
 	});
 	window.addEventListener("keydown", function(e) {
 		down[e.keyCode] = true;
