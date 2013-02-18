@@ -1,9 +1,10 @@
 define(["canvas", "events"], function(Canvas, events) {
-	var enemy = function(image, position) {
+	var enemy = function(image, position, weapon, bullets) {
 		var start = Date.now();
 		var speed = 0.2;
 		var dead = false;
 		var hp = 10;
+		var lastShot = 0;
 		var startPosition = {X: position.X, Y: position.Y};
 		var e = {
 			position: position,
@@ -25,6 +26,11 @@ define(["canvas", "events"], function(Canvas, events) {
 				Canvas.context.rotate(angle);
 				Canvas.context.drawImage(image, 264, 945, 22, 25, 0, 0, 22, 25);
 				Canvas.context.restore();
+
+				if(Date.now() - lastShot > weapon.loadTime) {
+					lastShot = Date.now();
+					bullets.push(weapon.ammo({X: position.X, Y: position.Y}));
+				}
 				if(position.Y > Canvas.height || dead) {
 					return true;
 				}						

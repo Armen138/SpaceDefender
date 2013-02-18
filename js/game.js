@@ -64,6 +64,16 @@ define(["canvas", "resources", "keys", "menu", "stars", "enemy", "effects", "bul
 			}
 		], Resources.images.logo);
 
+
+	var enemyWeapons = {
+		gun: {
+			loadTime: 5000,
+			ammo: function(position, enemies) {
+				return Bullet(position, [ship], {"south": true})
+			}
+		}
+	};
+
 	var weapons = {
 		gun: {
 			loadTime: 100,
@@ -96,29 +106,31 @@ define(["canvas", "resources", "keys", "menu", "stars", "enemy", "effects", "bul
 	var shieldAngle = 0;
 	var lastShield = 0;
 	var ship = {
-		X: 100,
-		Y: 100,
+		position: {X: 100, Y: 100},
 		hp: 100,
 		shield: 100,
 		currentWeapon: weapons.gun,
 		enableShield: false,
 		loadTime: 100,
+		die: function() {
+			console.log("death");
+		},
 		draw: function() {
 			//264,945
 			//22,25
 				Canvas.context.save();
 				var angle = -90 * 0.0174532925;
-				Canvas.context.translate(ship.X, ship.Y);
+				Canvas.context.translate(ship.position.X, ship.position.Y);
 				Canvas.context.rotate(angle);
 				Canvas.context.drawImage(Resources.images.ships, 264, 945, 22, 25, 0, 0, 22, 25);
 				Canvas.context.restore();	
-				var x = ship.X + 11 + 32 * Math.cos(shieldAngle);
-				var y = ship.Y - 12 + 32 * Math.sin(shieldAngle);
+				var x = ship.position.X + 11 + 32 * Math.cos(shieldAngle);
+				var y = ship.position.Y - 12 + 32 * Math.sin(shieldAngle);
 				shieldAngle += 0.2;
 				if(shieldAngle > 2 * Math.PI) {
 					shieldAngle = 0;
 				}
-				burner.draw(Canvas.element, ship.X + 11, ship.Y, 17);	
+				burner.draw(Canvas.element, ship.position.X + 11, ship.position.Y, 17);	
 				if(ship.enableShield) {
 					shield.draw(Canvas.element, x, y, 17);	
 				}
@@ -149,21 +161,21 @@ define(["canvas", "resources", "keys", "menu", "stars", "enemy", "effects", "bul
 			}			
 		},
 		left: function() {
-			ship.X -=10;
+			ship.position.X -=10;
 		},
 		right: function() {
-			ship.X += 10;
+			ship.position.X += 10;
 		},
 		up: function() {
-			ship.Y -= 10;
+			ship.position.Y -= 10;
 		}, 
 		down: function() {
-			ship.Y += 10;
+			ship.position.Y += 10;
 		},
 		fire: function() {
 			if(Date.now() - lastShot > ship.currentWeapon.loadTime) {
 				lastShot = Date.now();
-				bullets.push(ship.currentWeapon.ammo({X: ship.X + 11, Y: ship.Y - 25}, enemies));
+				bullets.push(ship.currentWeapon.ammo({X: ship.position.X + 11, Y: ship.position.Y - 25}, enemies));
 			}			
 		}
 	}
@@ -187,7 +199,7 @@ define(["canvas", "resources", "keys", "menu", "stars", "enemy", "effects", "bul
 				}
 			}		
 			for(var i = powerups.length - 1; i >= 0; --i) {
-				powerups[i].collect({X: ship.X, Y: ship.Y} );
+				powerups[i].collect({X: ship.position.X, Y: ship.position.Y} );
 				if(powerups[i].draw()) {
 					powerups.splice(i, 1);
 				}
@@ -244,8 +256,8 @@ define(["canvas", "resources", "keys", "menu", "stars", "enemy", "effects", "bul
     	var blast = new PS.ParticleSystem(effects("powerup", Resources.images.star));
     	systems.push({
     		effect: blast,
-    		X: ship.X,
-    		Y: ship.Y
+    		X: ship.position.X,
+    		Y: ship.position.Y
     	});
     }
 
@@ -292,7 +304,7 @@ define(["canvas", "resources", "keys", "menu", "stars", "enemy", "effects", "bul
     var powerupQueue = [shieldPowerup, doublePowerup, rocketPowerup, homingPowerup, healPowerup];
     game.state = home;
 	setInterval(function() {
-		var enemy = Enemy(Resources.images.ships, {X: Math.random() * Canvas.width | 0, Y: 0});
+		var enemy = Enemy(Resources.images.ships, {X: Math.random() * Canvas.width | 0, Y: 0}, enemyWeapons.gun, bullets);
 		enemy.on("death", function() {
 			var pu;
 			if(powerupQueue.length > 0) {

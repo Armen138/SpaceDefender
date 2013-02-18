@@ -13,6 +13,7 @@ define(["ParticleSystem", "canvas", "effects"], function(PS, Canvas, effects) {
 		var speed = options.speed || 0.7;
 		var dead = false;
 		var double = options.double || false;
+		var south = options.south || false;
 		var rocket = options.rocket || false;
 		var homing = options.homing || false;
 		var baseY = position.Y;
@@ -63,11 +64,17 @@ define(["ParticleSystem", "canvas", "effects"], function(PS, Canvas, effects) {
 						position.Y -= (Date.now() - lastDraw) * speed;
 					}
 				} else {
-					position.Y = baseY - ((Date.now() - start) * speed);
+					var direction = south ? -1 : 1;					
+					position.Y = baseY - ((Date.now() - start) * speed) * direction;
 					//position.X = baseX - ((Date.now() - start) * speed);					
 				}
-				if(position.Y < -10 && !dead) {
+				if (position.Y < -10 ||
+					position.Y > Canvas.height + 10 ||
+					position.X < -10 ||
+					position.X > Canvas.width + 10 &&
+					 !dead) {
 					trail.kill();
+					rocketTrail.kill();
 					dead = true;
 				}
 				for(var i = 0; i < enemies.length; i++) {
