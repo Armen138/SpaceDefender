@@ -69,7 +69,7 @@ define(["canvas", "resources", "keys", "menu", "stars", "enemy", "effects", "bul
 		gun: {
 			loadTime: 5000,
 			ammo: function(position, enemies) {
-				return Bullet(position, [ship], {"south": true})
+				return Bullet(position, [ship], {"south": true, damage: 3})
 			}
 		}
 	};
@@ -107,11 +107,18 @@ define(["canvas", "resources", "keys", "menu", "stars", "enemy", "effects", "bul
 	var lastShield = 0;
 	var ship = {
 		position: {X: 100, Y: 100},
-		hp: 100,
-		shield: 100,
+		hp: 10,
+		shield: 10,
 		currentWeapon: weapons.gun,
 		enableShield: false,
 		loadTime: 100,
+		hit: function(damage) {
+			ship.hp -= damage;
+			if(ship.hp < 0) {
+				ship.die();
+			}
+			console.log(ship.hp);
+		},		
 		die: function() {
 			console.log("death");
 		},
@@ -265,7 +272,7 @@ define(["canvas", "resources", "keys", "menu", "stars", "enemy", "effects", "bul
     	image: Resources.images.shield,
     	action: function() {
     		getPowerup();
-    		ship.shield = 100;
+    		ship.shield = 10;
     		ship.enableShield = true;
     	}
     }
@@ -298,12 +305,28 @@ define(["canvas", "resources", "keys", "menu", "stars", "enemy", "effects", "bul
     	image: Resources.images.heal,
     	action: function() {
     		getPowerup();
-    		ship.health = 100;
+    		ship.hp++;
+    		console.log(ship.hp);
     	}    	
     }
     var powerupQueue = [shieldPowerup, doublePowerup, rocketPowerup, homingPowerup, healPowerup];
+    var shipTiles = [
+	    {
+			width: 22,
+			height: 25,
+			X: 264,
+			Y: 945    	
+	    },
+	    {
+			width: 22,
+			height: 25,
+			X: 264,
+			Y: 945    	
+	    }	    
+    ];
     game.state = home;
 	setInterval(function() {
+		var tile = Math.random() * 2 | 0;
 		var enemy = Enemy(Resources.images.ships, {X: Math.random() * Canvas.width | 0, Y: 0}, enemyWeapons.gun, bullets);
 		enemy.on("death", function() {
 			var pu;

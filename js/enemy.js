@@ -1,9 +1,15 @@
 define(["canvas", "events"], function(Canvas, events) {
-	var enemy = function(image, position, weapon, bullets) {
+	var enemy = function(image, position, weapon, bullets, tile) {
 		var start = Date.now();
 		var speed = 0.2;
 		var dead = false;
-		var hp = 10;
+		var tile = tile || {
+			width: 22,
+			height: 25,
+			X: 264,
+			Y: 945
+		};
+		var hp = 2;
 		var lastShot = 0;
 		var startPosition = {X: position.X, Y: position.Y};
 		var e = {
@@ -24,7 +30,7 @@ define(["canvas", "events"], function(Canvas, events) {
 				var angle = 90 * 0.0174532925;
 				Canvas.context.translate(position.X, position.Y);
 				Canvas.context.rotate(angle);
-				Canvas.context.drawImage(image, 264, 945, 22, 25, 0, 0, 22, 25);
+				Canvas.context.drawImage(image, tile.X, tile.Y, tile.width, tile.height, 0, 0, tile.width, tile.height);
 				Canvas.context.restore();
 
 				if(Date.now() - lastShot > weapon.loadTime) {

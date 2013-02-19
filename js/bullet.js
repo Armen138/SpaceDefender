@@ -16,6 +16,7 @@ define(["ParticleSystem", "canvas", "effects"], function(PS, Canvas, effects) {
 		var south = options.south || false;
 		var rocket = options.rocket || false;
 		var homing = options.homing || false;
+		var damage = options.damage || 1;
 		var baseY = position.Y;
 		var baseX = position.X;
 		var twistAngle = 0;
@@ -77,13 +78,15 @@ define(["ParticleSystem", "canvas", "effects"], function(PS, Canvas, effects) {
 					rocketTrail.kill();
 					dead = true;
 				}
-				for(var i = 0; i < enemies.length; i++) {
-					if((Math.abs(enemies[i].position.X - position.X) < 30) &&
-					   (Math.abs(enemies[i].position.Y - position.Y) < 30)) {
-					   	enemies[i].die();
-					   	trail.kill();
-					   	dead = true;
-					   }
+				if(!dead) {
+					for(var i = 0; i < enemies.length; i++) {
+						if((Math.abs(enemies[i].position.X - position.X) < 30) &&
+						   (Math.abs(enemies[i].position.Y - position.Y) < 30)) {
+						   	enemies[i].hit(damage);
+						   	trail.kill();
+						   	dead = true;
+						   }
+					}					
 				}
 				lastDraw = Date.now();
 				if(trail.isDone()) {
