@@ -1,4 +1,4 @@
-define(["canvas", "resources", "keys", "menu", "stars", "enemy", "effects", "bullet", "powerup", "raf", "ParticleSystem", "stats.min"], function(Canvas, Resources, keys, Menu, Stars, Enemy, effects, Bullet, Powerup, raf, PS) {
+define(["canvas", "resources", "keys", "menu", "stars", "enemy", "effects", "bullet", "powerup", "topbar", "raf", "ParticleSystem", "stats.min"], function(Canvas, Resources, keys, Menu, Stars, Enemy, effects, Bullet, Powerup, TopBar, raf, PS) {
 	//Canvas.size(window.innerWidth, window.innerHeight);
 
 	Canvas.size(800, 600);
@@ -76,22 +76,26 @@ define(["canvas", "resources", "keys", "menu", "stars", "enemy", "effects", "bul
 
 	var weapons = {
 		gun: {
+			toString: function() { return "gun"; },
 			loadTime: 100,
 			ammo: Bullet
 		},
 		doubleBarrel: {
+			toString: function() { return "double shot"; },
 			loadTime: 150,
 			ammo: function(position, enemies) {
 				return Bullet(position, enemies, { "double" : true, damage: 3 });
 			}			
 		},
 		rocket: {
+			toString: function() { return "rocket"; },
 			loadTime: 300,
 			ammo: function(position, enemies) {
 				return Bullet(position, enemies, { rocket: true, speed: 0.3, damage: 10 });
 			}
 		},
 		homingMissile: {
+			toString: function() { return "homing missile"; },
 			loadTime: 900,
 			ammo: function(position, enemies) {
 				return Bullet(position, enemies, { rocket: true, speed: 0.3, damage: 10, homing: true });
@@ -108,12 +112,20 @@ define(["canvas", "resources", "keys", "menu", "stars", "enemy", "effects", "bul
 	var ship = {
 		position: {X: 100, Y: 100},
 		hp: 10,
-		shield: 10,
+		shield: 0,
 		currentWeapon: weapons.gun,
 		enableShield: false,
 		loadTime: 100,
 		hit: function(damage) {
-			ship.hp -= damage;
+			if(ship.shield > 0) {
+				ship.shield -= damage;
+				if(ship.shield < 0) {
+					ship.hp += ship.shield;
+					ship.shield = 0;
+				}
+			} else {
+				ship.hp -= damage;	
+			}			
 			if(ship.hp < 0) {
 				ship.die();
 			}
@@ -191,6 +203,26 @@ define(["canvas", "resources", "keys", "menu", "stars", "enemy", "effects", "bul
 	var powerups = [];
 	var systems = [];
 	var starField = Stars(Canvas);
+	var topBar = TopBar([
+		{
+			obj: ship,
+			prop: "hp",
+			name: "health",
+			type: "bar"
+		},
+		{
+			obj: ship,
+			prop: "currentWeapon",
+			name: "weapon",
+			type: "string"
+		},
+		{
+			name: "shield",
+			obj: ship,
+			prop: "shield",
+			type: "bar"
+		}		
+	]);
 	var play = {
 		init: function() {},
 		clear: function(cb) {
@@ -199,7 +231,7 @@ define(["canvas", "resources", "keys", "menu", "stars", "enemy", "effects", "bul
 		run: function() {
 			Canvas.clear("black");
 			starField.draw();
-			ship.draw();
+			ship.draw();			
 			for(var i = enemies.length - 1; i >= 0; --i) {
 				if(enemies[i].draw()) {
 					enemies.splice(i, 1);
@@ -216,7 +248,8 @@ define(["canvas", "resources", "keys", "menu", "stars", "enemy", "effects", "bul
 				if(systems[i].effect.isDone()) {
 					systems.splice(i, 1);
 				}
-			}					
+			}				
+			topBar.draw();	
 		},
 		controls: {
 			up: keys.UP,
@@ -274,6 +307,14 @@ define(["canvas", "resources", "keys", "menu", "stars", "enemy", "effects", "bul
     		getPowerup();
     		ship.shield = 10;
     		ship.enableShield = true;
+    		/*
+    		topBar.items.push({
+    			name: "shield",
+    			obj: ship,
+    			prop: "shield",
+    			type: "bar"
+    		});
+			*/
     	}
     }
 
