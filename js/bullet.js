@@ -80,8 +80,8 @@ define(["ParticleSystem", "canvas", "effects"], function(PS, Canvas, effects) {
 				}
 				if(!dead) {
 					for(var i = 0; i < enemies.length; i++) {
-						if((Math.abs(enemies[i].position.X - position.X) < 30) &&
-						   (Math.abs(enemies[i].position.Y - position.Y) < 30)) {
+						if((Math.abs(enemies[i].position.X - position.X) < enemies[i].width / 2) &&
+						   (Math.abs(enemies[i].position.Y - position.Y) < enemies[i].height / 2)) {
 						   	enemies[i].hit(damage);
 						   	trail.kill();
 						   	dead = true;

@@ -21,7 +21,11 @@ define(["canvas", "easing"], function(Canvas) {
                 Canvas.context.textBaseline = "middle";
                 for(var i = 0; i < topbar.items.length; i++) {
                     var x = Canvas.width / topbar.items.length * i + (Canvas.width / topbar.items.length / 2);
-                    Canvas.context.fillText(topbar.items[i].name + ": " + topbar.items[i].obj[topbar.items[i].prop] , x, height / 2);    
+                    var label = topbar.items[i].name + ": " + topbar.items[i].obj[topbar.items[i].prop];
+                    if(topbar.items[i].count && topbar.items[i].obj[topbar.items[i].countStart] !== 0) {
+                        label += " " + (topbar.items[i].count - ((Date.now() - topbar.items[i].obj[topbar.items[i].countStart]) / 1000 | 0)) + "s"; 
+                    }
+                    Canvas.context.fillText(label, x, height / 2);    
                 }
                 
                 Canvas.context.restore();                
