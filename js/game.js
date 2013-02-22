@@ -10,6 +10,7 @@ define(["canvas",
         "powerup", 
         "topbar", 
         "gamepad",
+        "waves",
         "raf", 
         "ParticleSystem", 
         "stats.min"], 
@@ -25,6 +26,7 @@ define(["canvas",
             Powerup, 
             TopBar,
             gamePad, 
+            Waves,
             raf, 
             PS) {
     //Canvas.size(window.innerWidth, window.innerHeight);
@@ -146,7 +148,7 @@ define(["canvas",
     var ship = {
         width: 25,
         height: 22,
-        position: {X: 100, Y: 100},
+        position: {X: 400, Y: 500},
         hp: 10,
         shield: 0,
         currentWeapon: weapons.gun,
@@ -242,17 +244,19 @@ define(["canvas",
                 bullets.push(ship.currentWeapon.ammo({X: ship.position.X, Y: ship.position.Y - 12}, enemies));
             }           
         }
-    }
+    };
     var enemyTypes = EnemyTypes(ship);
     var down = {};
     var enemies = [];
     var powerups = [];
     var systems = [];
     var starField = Stars(Canvas);
+    var waves;
     var topBar;
     var play = {
         score: 0,
         init: function() {
+            waves = Waves();
             topBar = TopBar([
                 {
                     obj: ship,
@@ -286,6 +290,7 @@ define(["canvas",
             cb();
         },
         run: function() {
+            var now = Date.now();
             Canvas.clear("black");
             starField.draw();
             ship.draw();            
@@ -307,6 +312,11 @@ define(["canvas",
                 }
             }               
             topBar.draw();  
+            if(!play.lastSpawn || waves.length > 0 && now - play.lastSpawn > waves[0].delay) {
+                spawnEnemy(waves[0].type, waves[0].X);
+                waves.shift();
+                play.lastSpawn = now;
+            }
         },
         controls: {
             up: keys.UP,
@@ -409,11 +419,8 @@ define(["canvas",
     };
     var powerupQueue = [shieldPowerup, doublePowerup, rocketPowerup, homingPowerup, healPowerup];
 
-    game.state = home;
-    setInterval(function() {
-        var tile = (Math.random() * 3) | 0;
-        var type = ["pirate", "schooner", "hauler"][tile];
-        var enemy = Enemy(Resources.images.ships, {X: Math.random() * Canvas.width | 0, Y: 0}, enemyTypes[type].weapon, bullets, enemyTypes[type].sprite, enemyTypes[type].options);
+    var spawnEnemy = function(type, X) {
+        var enemy = Enemy(Resources.images.ships, {X: X || Math.random() * Canvas.width | 0, Y: 0}, enemyTypes[type].weapon, bullets, enemyTypes[type].sprite, enemyTypes[type].options);
         enemy.on("death", function() {
             var pu;
             if(powerupQueue.length > 0) {
@@ -431,8 +438,15 @@ define(["canvas",
             });
             play.score += this.score;
         });
-        enemies.push(enemy);
-    }, 1000);
+        enemies.push(enemy);        
+    };
+    game.state = home;
+
+    // setInterval(function() {
+    //     var tile = (Math.random() * 3) | 0;
+    //     var type = ["pirate", "elder", "zipper"][tile];
+    //     spawnEnemy(type);
+    // }, 1000);
 
     window.addEventListener("blur", function() {
         if(game.state == play) {

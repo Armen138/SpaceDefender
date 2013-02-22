@@ -1,10 +1,10 @@
-define(["bullet"], function(Bullet) {
+define(["bullet", "canvas"], function(Bullet, Canvas) {
 	return function(ship) {
 		var weapons = {
 			gun: {
 				loadTime: 5000,
 				ammo: function(position, enemies) {
-					return Bullet(position, [ship], {"south": true, damage: 3})
+					return Bullet(position, [ship], {"south": true, damage: 3});
 				}
 			},
 			doubleBarrel: {		
@@ -51,7 +51,20 @@ define(["bullet"], function(Bullet) {
 				weapon: weapons.rocket,
 				options: {
 					score: 14,
-					speed: 0.1
+					speed: 0.1,
+					movePattern: function(startPosition, position, start, speed, delta) {
+						if(!position.direction) {
+							position.direction = 1;
+						}
+						position.Y = startPosition.Y + ((Date.now() - start) * speed);	
+						position.X += delta * speed * position.direction;
+						if(position.X > Canvas.width - 33) {
+							position.direction = -1;
+						}
+						if(position.X < 33) {
+							position.direction = 1;
+						}						
+					}
 				}
 			},
 			"hauler": {
@@ -62,7 +75,12 @@ define(["bullet"], function(Bullet) {
 					Y: 887
 				},
 				weapon: weapons.gun,
-				options: {}
+				options: {
+					movePattern: function(startPosition, position, start, speed) {
+						position.Y = startPosition.Y + ((Date.now() - start) * speed);	
+						position.X = startPosition.X + (100 * Math.cos(((Date.now() - start) / 500)));
+					}
+				}
 			},	
 			"tube": {
 				sprite: {
@@ -102,7 +120,15 @@ define(["bullet"], function(Bullet) {
 					Y: 913
 				},
 				weapon: weapons.gun,
-				options: {}
+				options: {
+					score: 60,
+					hp: 30,
+					speed: 0.07,
+					movePattern: function(startPosition, position, start, speed) {
+						position.Y = startPosition.Y + ((Date.now() - start) * speed);	
+						position.X = startPosition.X + (150 * Math.cos(((Date.now() - start) / 1500)));
+					}					
+				}
 			},
 			"destroyer": {
 				sprite: {
@@ -115,7 +141,11 @@ define(["bullet"], function(Bullet) {
 				options: {
 					hp: 50,
 					speed: 0.05,
-					score: 100
+					score: 100,
+					movePattern: function(startPosition, position, start, speed) {
+						position.Y = startPosition.Y + ((Date.now() - start) * speed);	
+						position.X = startPosition.X + (100 * Math.cos(((Date.now() - start) / 1000)));
+					}					
 				}
 			},
 

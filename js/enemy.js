@@ -3,7 +3,7 @@ define(["canvas", "events"], function(Canvas, events) {
 		var start = Date.now();
 		var speed = options.speed || 0.2;
 		var dead = false;
-		var tile = tile || {
+		tile = tile || {
 			width: 22,
 			height: 25,
 			X: 264,
@@ -11,6 +11,7 @@ define(["canvas", "events"], function(Canvas, events) {
 		};
 		var hp = options.hp || 2;
 		var lastShot = 0;
+		var lastFrame = 0;
 		var startPosition = {X: position.X, Y: position.Y};
 		var e = {
 			width: tile.width,
@@ -28,7 +29,13 @@ define(["canvas", "events"], function(Canvas, events) {
 				e.fire("death");
 			},
 			draw: function() {
-				position.Y = startPosition.Y + ((Date.now() - start) * speed);
+				var now = Date.now();
+				var delta = lastFrame === 0 ? 0 : now - lastFrame;
+				if(options.movePattern) {
+					options.movePattern(startPosition, position, start, speed, delta);
+				} else {
+					position.Y = startPosition.Y + ((Date.now() - start) * speed);	
+				}								
 				Canvas.context.save();
 				var angle = 90 * 0.0174532925;
 				Canvas.context.translate(position.X, position.Y);
@@ -40,12 +47,13 @@ define(["canvas", "events"], function(Canvas, events) {
 					lastShot = Date.now();
 					bullets.push(weapon.ammo({X: position.X, Y: position.Y}));
 				}
+				lastFrame = now;
 				if(position.Y > Canvas.height || dead) {
 					return true;
 				}						
 				return false;
 			}
-		}
+		};
 		events.attach(e);
 		return e;
 	};	
