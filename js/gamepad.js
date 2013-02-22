@@ -8,11 +8,11 @@ define(["raf", "events"], function(raf, Events) {
 		poll: function() {			
 			var i;
 			var pad = navigator.webkitGetGamepads && navigator.webkitGetGamepads()[0];
-			if(!padID) {
-				padID = pad.id;
-				console.log("gamepad: " + padID);
-			}
 			if(pad) {
+				if(!padID) {
+					padID = pad.id;
+					console.log("gamepad: " + padID);
+				}				
 				for(i = 0; i < pad.buttons.length; i++) {					
 					if(pad.buttons[i] !== 0) {
 						gamepad.fire("button", { which: i, action: "down"});
