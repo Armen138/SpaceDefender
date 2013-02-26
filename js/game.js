@@ -54,9 +54,25 @@ define(["canvas",
         "heal": "images/heal.png",
         "rocket": "images/rocket.png",
         "homing": "images/on-target.png",
-        "star": "images/star.png"
-    }); 
+        "star": "images/star.png",
+        "gameover": "images/gameover.png"
+    });
 
+    var gameover = Menu(Canvas.element, [
+            {
+                label: "Restart",
+                action: function() {
+                    play.reset();
+                    game.state = play;
+                }
+            },
+            {
+                label: "Menu",
+                action: function() {
+                    game.state = home;
+                }
+            }
+        ], Resources.images.gameover);
 
     var paused = Menu(Canvas.element, [
             {
@@ -77,6 +93,7 @@ define(["canvas",
                 label: "Play",
                 action: function() {
                     //alert("play");
+                    play.reset();
                     game.state = play;
                 }
             },
@@ -94,22 +111,6 @@ define(["canvas",
             }
         ], Resources.images.logo);
 
-/*
-    var enemyWeapons = {
-        gun: {
-            loadTime: 5000,
-            ammo: function(position, enemies) {
-                return Bullet(position, [ship], {"south": true, damage: 3})
-            }
-        },
-        doubleBarrel: {     
-            loadTime: 1000,
-            ammo: function(position, enemies) {
-                return Bullet(position, [ship], { "south": true, "double" : true, damage: 6 });
-            }           
-        }       
-    };
-*/
     var weapons = {
         gun: {
             toString: function() { return "gun"; },
@@ -121,7 +122,7 @@ define(["canvas",
             loadTime: 150,
             ammo: function(position, enemies) {
                 return Bullet(position, enemies, { "double" : true, damage: 3 });
-            }           
+            }
         },
         rocket: {
             toString: function() { return "rocket"; },
@@ -136,8 +137,8 @@ define(["canvas",
             ammo: function(position, enemies) {
                 return Bullet(position, enemies, { rocket: true, speed: 0.3, damage: 10, homing: true });
             }
-        }       
-    }
+        }
+    };
 
     var bullets = [];
     var lastShot = 0;
@@ -167,15 +168,16 @@ define(["canvas",
                     ship.shield = 0;
                 }
             } else {
-                ship.hp -= damage;  
-            }           
+                ship.hp -= damage;
+            }
             if(ship.hp < 0) {
                 ship.die();
             }
             console.log(ship.hp);
-        },      
+        },
         die: function() {
             console.log("death");
+            game.state = gameover;
         },
         draw: function() {
             if(ship.currentWeapon !== weapons.gun && Date.now() - ship.weaponTime > 10000) {
@@ -189,16 +191,16 @@ define(["canvas",
                 Canvas.context.translate(ship.position.X, ship.position.Y);
                 Canvas.context.rotate(angle);
                 Canvas.context.drawImage(Resources.images.ships, 264, 945, 22, 25, 0 - 11, 0 - 12, 22, 25);
-                Canvas.context.restore();   
+                Canvas.context.restore();
                 var x = ship.position.X + 32 * Math.cos(shieldAngle);
                 var y = ship.position.Y + 32 * Math.sin(shieldAngle);
                 shieldAngle += 0.2;
                 if(shieldAngle > 2 * Math.PI) {
                     shieldAngle = 0;
                 }
-                burner.draw(Canvas.element, ship.position.X, ship.position.Y + 11, 17); 
+                burner.draw(Canvas.element, ship.position.X, ship.position.Y + 11, 17);
                 if(ship.enableShield) {
-                    shield.draw(Canvas.element, x, y, 17);  
+                    shield.draw(Canvas.element, x, y, 17);
                 }
                 
             for(var i = bullets.length -1; i >= 0; --i) {
@@ -212,19 +214,19 @@ define(["canvas",
             }
             if(down[play.controls.right]) {
                 ship.right();
-            }           
+            }
             if(down[play.controls.up]) {
                 ship.up();
-            }           
+            }
             if(down[play.controls.down]) {
                 ship.down();
-            }           
+            }
             if(down[play.controls.fire]) {
                 ship.fire();
-            }   
+            }
             if(ship.shield <= 0) {
                 ship.enableShield = false;
-            }           
+            }
         },
         left: function() {
             ship.position.X -=10;
@@ -234,7 +236,7 @@ define(["canvas",
         },
         up: function() {
             ship.position.Y -= 10;
-        }, 
+        },
         down: function() {
             ship.position.Y += 10;
         },
@@ -242,10 +244,11 @@ define(["canvas",
             if(Date.now() - lastShot > ship.currentWeapon.loadTime) {
                 lastShot = Date.now();
                 bullets.push(ship.currentWeapon.ammo({X: ship.position.X, Y: ship.position.Y - 12}, enemies));
-            }           
+            }
         }
     };
     var enemyTypes = EnemyTypes(ship);
+    var powerupQueue;
     var down = {};
     var enemies = [];
     var powerups = [];
@@ -255,7 +258,17 @@ define(["canvas",
     var topBar;
     var play = {
         score: 0,
-        init: function() {
+        init: function() {},
+        reset: function() {
+            powerupQueue = [shieldPowerup, doublePowerup, rocketPowerup, homingPowerup, healPowerup,
+                            shieldPowerup, doublePowerup, rocketPowerup, homingPowerup, healPowerup];
+            ship.hp = 10;
+            ship.shield = 0;
+            ship.position = {X: 400, Y: 500};
+            ship.currentWeapon = weapons.gun;
+            play.score = 0;
+            enemies = [];
+            powerups = [];
             waves = Waves();
             topBar = TopBar([
                 {
@@ -283,7 +296,7 @@ define(["canvas",
                     obj: play,
                     prop: "score",
                     type: "string"
-                }       
+                }
             ]);
         },
         clear: function(cb) {
@@ -291,27 +304,28 @@ define(["canvas",
         },
         run: function() {
             var now = Date.now();
+            var i;
             Canvas.clear("black");
             starField.draw();
-            ship.draw();            
-            for(var i = enemies.length - 1; i >= 0; --i) {
+            ship.draw();
+            for(i = enemies.length - 1; i >= 0; --i) {
                 if(enemies[i].draw()) {
                     enemies.splice(i, 1);
                 }
-            }       
-            for(var i = powerups.length - 1; i >= 0; --i) {
+            }
+            for(i = powerups.length - 1; i >= 0; --i) {
                 powerups[i].collect({X: ship.position.X, Y: ship.position.Y} );
                 if(powerups[i].draw()) {
                     powerups.splice(i, 1);
                 }
             }
-            for(var i = systems.length -1; i >= 0; --i) {
+            for(i = systems.length -1; i >= 0; --i) {
                 systems[i].effect.draw(Canvas.element, systems[i].X, systems[i].Y, 17);
                 if(systems[i].effect.isDone()) {
                     systems.splice(i, 1);
                 }
-            }               
-            topBar.draw();  
+            }
+            topBar.draw();
             if(!play.lastSpawn || waves.length > 0 && now - play.lastSpawn > waves[0].delay) {
                 spawnEnemy(waves[0].type, waves[0].X);
                 waves.shift();
@@ -331,9 +345,9 @@ define(["canvas",
                 stats.begin();
                 Canvas.clear();
                 if(game.state) {
-                    game.state.run();   
+                    game.state.run();
                 }
-                raf.requestAnimationFrame.call(window, game.run);               
+                raf.requestAnimationFrame.call(window, game.run);
                 stats.end();
             }
         },
@@ -343,15 +357,15 @@ define(["canvas",
         get: function() {
             return state;
         },
-        set: function(newstate) {           
+        set: function(newstate) {
             if(state) {
                 state.clear(function() {
                     newstate.init();
-                    state = newstate;                    
+                    state = newstate;
                 });
             } else {
                 newstate.init();
-                state = newstate;                
+                state = newstate;
             }
         }
     });
@@ -417,7 +431,7 @@ define(["canvas",
             console.log(ship.hp);
         }       
     };
-    var powerupQueue = [shieldPowerup, doublePowerup, rocketPowerup, homingPowerup, healPowerup];
+
 
     var spawnEnemy = function(type, X) {
         var enemy = Enemy(Resources.images.ships, {X: X || Math.random() * Canvas.width | 0, Y: 0}, enemyTypes[type].weapon, bullets, enemyTypes[type].sprite, enemyTypes[type].options);

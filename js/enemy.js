@@ -34,8 +34,8 @@ define(["canvas", "events"], function(Canvas, events) {
 				if(options.movePattern) {
 					options.movePattern(startPosition, position, start, speed, delta);
 				} else {
-					position.Y = startPosition.Y + ((Date.now() - start) * speed);	
-				}								
+					position.Y = startPosition.Y + ((Date.now() - start) * speed);
+				}
 				Canvas.context.save();
 				var angle = 90 * 0.0174532925;
 				Canvas.context.translate(position.X, position.Y);
@@ -50,7 +50,7 @@ define(["canvas", "events"], function(Canvas, events) {
 				lastFrame = now;
 				if(position.Y > Canvas.height || dead) {
 					return true;
-				}						
+				}
 				return false;
 			}
 		};
