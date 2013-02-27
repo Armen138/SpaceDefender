@@ -1,5 +1,5 @@
 define(["canvas", "events"], function(Canvas, events) {
-	var enemy = function(image, position, weapon, bullets, tile, options) {
+	var enemy = function(image, position, weapon, bullets, tile, options, sound) {
 		var start = Date.now();
 		var speed = options.speed || 0.2;
 		var dead = false;
@@ -46,6 +46,7 @@ define(["canvas", "events"], function(Canvas, events) {
 				if(Date.now() - lastShot > weapon.loadTime) {
 					lastShot = Date.now();
 					bullets.push(weapon.ammo({X: position.X, Y: position.Y}));
+					sound.play();
 				}
 				lastFrame = now;
 				if(position.Y > Canvas.height || dead) {

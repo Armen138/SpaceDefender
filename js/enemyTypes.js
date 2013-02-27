@@ -7,18 +7,18 @@ define(["bullet", "canvas"], function(Bullet, Canvas) {
 					return Bullet(position, [ship], {"south": true, damage: 3});
 				}
 			},
-			doubleBarrel: {		
+			doubleBarrel: {
 				loadTime: 1000,
 				ammo: function(position, enemies) {
 					return Bullet(position, [ship], { "south": true, "double" : true, damage: 6 });
-				}			
+				}
 			},
-			rocket: {		
+			rocket: {
 				loadTime: 2000,
 				ammo: function(position, enemies) {
 					return Bullet(position, [ship], { "south": true, damage: 8, rocket: true });
-				}			
-			}				
+				}
+			}
 		};
 		var ships = {
 			"pirate": {
@@ -41,7 +41,7 @@ define(["bullet", "canvas"], function(Bullet, Canvas) {
 				weapon: weapons.doubleBarrel,
 				options: {}
 			},
-			"zipper": {			 
+			"zipper": {
 				sprite: {
 					width: 31,
 					height: 33,
@@ -56,14 +56,14 @@ define(["bullet", "canvas"], function(Bullet, Canvas) {
 						if(!position.direction) {
 							position.direction = 1;
 						}
-						position.Y = startPosition.Y + ((Date.now() - start) * speed);	
+						position.Y = startPosition.Y + ((Date.now() - start) * speed);
 						position.X += delta * speed * position.direction;
 						if(position.X > Canvas.width - 33) {
 							position.direction = -1;
 						}
 						if(position.X < 33) {
 							position.direction = 1;
-						}						
+						}
 					}
 				}
 			},
@@ -77,11 +77,11 @@ define(["bullet", "canvas"], function(Bullet, Canvas) {
 				weapon: weapons.gun,
 				options: {
 					movePattern: function(startPosition, position, start, speed) {
-						position.Y = startPosition.Y + ((Date.now() - start) * speed);	
+						position.Y = startPosition.Y + ((Date.now() - start) * speed);
 						position.X = startPosition.X + (100 * Math.cos(((Date.now() - start) / 500)));
 					}
 				}
-			},	
+			},
 			"tube": {
 				sprite: {
 					width: 45,

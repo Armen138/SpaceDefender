@@ -1,33 +1,35 @@
-define(["canvas", 
-        "resources", 
-        "keys", 
-        "menu", 
-        "stars", 
-        "enemy", 
-        "enemyTypes", 
-        "effects", 
-        "bullet", 
-        "powerup", 
-        "topbar", 
+define(["canvas",
+        "resources",
+        "keys",
+        "menu",
+        "stars",
+        "enemy",
+        "enemyTypes",
+        "effects",
+        "bullet",
+        "powerup",
+        "topbar",
         "gamepad",
         "waves",
-        "raf", 
-        "ParticleSystem", 
-        "stats.min"], 
-    function(Canvas, 
-            Resources, 
-            keys, 
-            Menu, 
-            Stars, 
-            Enemy, 
-            EnemyTypes, 
-            effects, 
-            Bullet, 
-            Powerup, 
+        "racket",
+        "raf",
+        "ParticleSystem",
+        "stats.min"],
+    function(Canvas,
+            Resources,
+            keys,
+            Menu,
+            Stars,
+            Enemy,
+            EnemyTypes,
+            effects,
+            Bullet,
+            Powerup,
             TopBar,
-            gamePad, 
+            gamePad,
             Waves,
-            raf, 
+            racket,
+            raf,
             PS) {
     //Canvas.size(window.innerWidth, window.innerHeight);
 
@@ -47,7 +49,7 @@ define(["canvas",
     });
     Resources.load({
         "ships": "images/spaceships_1.png",
-        "logo": "images/spacedefender.png",
+        "logo": "images/spacedefender800.png",
         "bomb": "images/fire-bomb.png",
         "shield": "images/edged-shield.png",
         "doubleshot": "images/double-shot.png",
@@ -58,6 +60,19 @@ define(["canvas",
         "gameover": "images/gameover.png"
     });
 
+    Resources.audio = {
+        "select": racket.create("audio/select.wav"),
+        "explosion": racket.create("audio/explosion.wav"),
+        "rapidfire": racket.create("audio/rapidfire.wav"),
+        "shoot": racket.create("audio/shoot.wav"),
+        "shoot2": racket.create("audio/shoot2.wav"),
+        "rocket": racket.create("audio/rocket.wav"),
+        "rocket2": racket.create("audio/rocket2.wav"),
+        "pickup": racket.create("audio/pickup.wav"),
+        "strange": racket.create("audio/strange.ogg"),
+        "enemyshoot": racket.create("audio/enemyshoot.wav"),
+        "error": racket.create("audio/error.wav")
+    };
     var gameover = Menu(Canvas.element, [
             {
                 label: "Restart",
@@ -94,19 +109,23 @@ define(["canvas",
                 action: function() {
                     //alert("play");
                     play.reset();
+                    play.mode = "waves";
                     game.state = play;
                 }
             },
             {
                 label: "Survival",
                 action: function() {
-                    alert("survival");
+                    play.reset();
+                    play.mode = "survival";
+                    game.state = play;
                 }
             },
             {
                 label: "Credits",
                 action: function() {
-                    alert("credits");
+                    //alert("credits");
+                    document.getElementById("credits").style.display = "block";
                 }
             }
         ], Resources.images.logo);
@@ -115,28 +134,32 @@ define(["canvas",
         gun: {
             toString: function() { return "gun"; },
             loadTime: 100,
-            ammo: Bullet
+            ammo: Bullet,
+            sound: "shoot"
         },
         doubleBarrel: {
             toString: function() { return "double shot"; },
             loadTime: 150,
             ammo: function(position, enemies) {
                 return Bullet(position, enemies, { "double" : true, damage: 3 });
-            }
+            },
+            sound: "shoot2"
         },
         rocket: {
             toString: function() { return "rocket"; },
             loadTime: 300,
             ammo: function(position, enemies) {
                 return Bullet(position, enemies, { rocket: true, speed: 0.3, damage: 10 });
-            }
+            },
+            sound: "rocket"
         },
         homingMissile: {
             toString: function() { return "homing missile"; },
             loadTime: 900,
             ammo: function(position, enemies) {
                 return Bullet(position, enemies, { rocket: true, speed: 0.3, damage: 10, homing: true });
-            }
+            },
+            sound: "rocket2"
         }
     };
 
@@ -244,6 +267,7 @@ define(["canvas",
             if(Date.now() - lastShot > ship.currentWeapon.loadTime) {
                 lastShot = Date.now();
                 bullets.push(ship.currentWeapon.ammo({X: ship.position.X, Y: ship.position.Y - 12}, enemies));
+                Resources.audio[ship.currentWeapon.sound].play();
             }
         }
     };
@@ -258,7 +282,14 @@ define(["canvas",
     var topBar;
     var play = {
         score: 0,
-        init: function() {},
+        mode: "waves",
+        init: function() {
+            Resources.audio.strange.play(true);
+            Resources.audio.shoot.volume(0.5);
+            Resources.audio.shoot2.volume(0.5);
+            Resources.audio.rocket.volume(0.5);
+            Resources.audio.rocket2.volume(0.5);
+        },
         reset: function() {
             powerupQueue = [shieldPowerup, doublePowerup, rocketPowerup, homingPowerup, healPowerup,
                             shieldPowerup, doublePowerup, rocketPowerup, homingPowerup, healPowerup];
@@ -300,6 +331,7 @@ define(["canvas",
             ]);
         },
         clear: function(cb) {
+            Resources.audio.strange.stop();
             cb();
         },
         run: function() {
@@ -326,10 +358,19 @@ define(["canvas",
                 }
             }
             topBar.draw();
-            if(!play.lastSpawn || waves.length > 0 && now - play.lastSpawn > waves[0].delay) {
-                spawnEnemy(waves[0].type, waves[0].X);
-                waves.shift();
-                play.lastSpawn = now;
+            if(play.mode === "waves") {
+                if(!play.lastSpawn || waves.length > 0 && now - play.lastSpawn > waves[0].delay) {
+                    spawnEnemy(waves[0].type, waves[0].X);
+                    waves.shift();
+                    play.lastSpawn = now;
+                }
+            }  else {
+                if(!play.lastSpawn || now - play.lastSpawn > 600) {
+                    var types = ["schooner", "pirate", "zipper", "hauler", "tube", "shuttle", "waterhauler"];
+                    var type = types[Math.random() * types.length | 0];
+                    spawnEnemy(type, Math.random() * 800 | 0);
+                    play.lastSpawn = now;
+                }
             }
         },
         controls: {
@@ -374,6 +415,7 @@ define(["canvas",
         //play powerup noise
         //show particle fun
         powerupQueue.shift();
+        Resources.audio.pickup.play();
         var blast = new PS.ParticleSystem(effects("powerup", Resources.images.star));
         systems.push({
             effect: blast,
@@ -381,7 +423,7 @@ define(["canvas",
             Y: ship.position.Y
         });
     }
-
+    
     var shieldPowerup = {
         image: Resources.images.shield,
         action: function() {
@@ -429,30 +471,35 @@ define(["canvas",
             getPowerup();
             ship.hp++;
             console.log(ship.hp);
-        }       
+        }
     };
 
-
+    var allpowerups = [shieldPowerup, doublePowerup, rocketPowerup, homingPowerup, healPowerup];
     var spawnEnemy = function(type, X) {
-        var enemy = Enemy(Resources.images.ships, {X: X || Math.random() * Canvas.width | 0, Y: 0}, enemyTypes[type].weapon, bullets, enemyTypes[type].sprite, enemyTypes[type].options);
+        var enemy = Enemy(Resources.images.ships, {X: X || Math.random() * Canvas.width | 0, Y: 0}, enemyTypes[type].weapon, bullets, enemyTypes[type].sprite, enemyTypes[type].options, Resources.audio.enemyshoot);
         enemy.on("death", function() {
             var pu;
-            if(powerupQueue.length > 0) {
-                pu = powerupQueue[0];
+            if(play.mode === "waves") {
+                if(powerupQueue.length > 0) {
+                    pu = powerupQueue[0];
+                } else {
+                    pu = healPowerup;
+                }
             } else {
-                pu = healPowerup;
+                pu = allpowerups[Math.random() * allpowerups.length | 0];
             }
             if(Math.random() > 0.9) {
                 powerups.push(Powerup(pu.image, pu.action, this.position));
-            }           
+            }
             systems.push({
                 effect: new PS.ParticleSystem(effects("explosion")),
                 X: this.position.X,
                 Y: this.position.Y
             });
             play.score += this.score;
+            Resources.audio.explosion.play();
         });
-        enemies.push(enemy);        
+        enemies.push(enemy);
     };
     game.state = home;
 
@@ -464,11 +511,11 @@ define(["canvas",
 
     window.addEventListener("blur", function() {
         if(game.state == play) {
-            game.state = paused;            
+            game.state = paused;
         }
     });
     
-    window.addEventListener("keyup", function(e){       
+    window.addEventListener("keyup", function(e) {
         down[e.keyCode] = false;
         if(e.keyCode === 27 || e.keyCode === 19) {
             if(game.state == play) {
@@ -500,7 +547,7 @@ define(["canvas",
                 } else {
                     down[keys.UP] = false;
                     down[keys.DOWN] = true;
-                }               
+                }
             } else {
                 down[keys.UP] = false;
                 down[keys.DOWN] = false;
@@ -514,13 +561,13 @@ define(["canvas",
                 } else {
                     down[keys.LEFT] = false;
                     down[keys.RIGHT] = true;
-                }                           
+                }
             } else {
                 down[keys.LEFT] = false;
                 down[keys.RIGHT] = false;
             }
-        }       
-    })
+        }
+    });
     gamePad.on("button", function(e) {
         if(e.action === "down") {
             if(e.which === 0) {
@@ -531,7 +578,7 @@ define(["canvas",
             if(e.which === 0) {
                 down[keys.SPACE] = false;
             }
-        }       
+        }
     });
     return game;
 });
