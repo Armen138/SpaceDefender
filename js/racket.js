@@ -57,7 +57,7 @@
 	};
 
 	if(typeof define !== "undefined") {
-		define(Racket);
+		define("racket", Racket);
 	} else {
 		window.Racket = Racket;
 	}

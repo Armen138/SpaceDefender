@@ -1,4 +1,4 @@
-define(["easing"], function(easing) {
+define("menu", ["easing"], function(easing) {
     var color = "rgba(0, 0, 0, 0.7)",
         width = 300,
         buffer = 80,
@@ -40,22 +40,22 @@ define(["easing"], function(easing) {
                     splashStart = canvas.width - splash.width;
                 }
                 if(now < duration) {
-                    position.X = easing(now, from, to, duration) | 0;     
+                    position.X = easing(now, from, to, duration) | 0;
                     if(splash) {
                         splashX = easing(now, splashStart, sign * splash.width, duration) | 0;
-                    }                                   
+                    }
                 } else {
                     position.X = from + to;
                     if(splash) {
                         splashX = canvas.width - splash.width;
-                    }                    
+                    }
                     if(to < 0 && paused.done) {
                         paused.done();
                     }
                 }
                 context.save();
                 context.drawImage(paused.background, 0, 0);
-                if(splash) {                    
+                if(splash) {
                     context.drawImage(splash, splashX, canvas.height / 2 - splash.height / 2)
                 }
                 context.fillStyle = color;
@@ -72,8 +72,8 @@ define(["easing"], function(easing) {
                         //context.strokeRect(10, 10 + (i * 120), 280, 100);
                         context.fillStyle = "white";
                         context.fillText(menu[i].label, 10 + 140 + iconSpace, 10 + 50 + (i * 120));
-                    }                    
-                    if(menu[i].icon) {                        
+                    }
+                    if(menu[i].icon) {
                         context.drawImage(menu[i].icon, 0, 0, menu[i].icon.width, menu[i].icon.height, 37, 37 + (i * 120), 48, 48);
                     }
                 }
@@ -88,7 +88,7 @@ define(["easing"], function(easing) {
                 start = Date.now();
                 from = -width;
                 to = width;
-                position.X = from;               
+                position.X = from;
             },
             clear: function(cb) {
                 paused.time = Date.now() - start;

@@ -1,4 +1,5 @@
-define(["canvas",
+define("game",
+        ["canvas",
         "resources",
         "keys",
         "menu",
@@ -32,7 +33,11 @@ define(["canvas",
             raf,
             PS) {
     //Canvas.size(window.innerWidth, window.innerHeight);
-
+    // Clay.gameKey = "spacedefender";
+    // Clay.readyFunctions = [];
+    // Clay.ready = function( fn ) {
+    //     Clay.readyFunctions.push( fn );
+    // };
     Canvas.size(800, 600);
 
     var stats = new Stats();
@@ -287,7 +292,7 @@ define(["canvas",
                 if(ship.enableShield) {
                     shield.draw(Canvas.element, x, y, 17);
                 }
-                
+
             for(var i = bullets.length -1; i >= 0; --i) {
                 if(bullets[i].draw()) {
                     bullets.splice(i, 1);
@@ -338,7 +343,7 @@ define(["canvas",
         	if(ship.position.Y > 568) {
         		ship.position.Y = 568;
         		return;
-        	}        	
+        	}
             ship.position.Y += 10;
         },
         fire: function() {
@@ -518,7 +523,7 @@ define(["canvas",
             Y: ship.position.Y
         });
     }
-    
+
     var shieldPowerup = {
         image: Resources.images.shield,
         action: function() {
@@ -609,7 +614,7 @@ define(["canvas",
             game.state = paused;
         }
     });
-    
+
     window.addEventListener("keyup", function(e) {
         down[e.keyCode] = false;
         if(e.keyCode === 27 || e.keyCode === 19) {
@@ -677,7 +682,7 @@ define(["canvas",
             }
         }
     });
-    Clay.ready(function() {
+    //Clay.ready(function() {
         var arrayOfValues = [['row1-col1', 'row1-col2'], ['row2-col1', 'row2-col2']];
         game.leaderboard = new Clay.Leaderboard({id: 675});
         game.survivalboard = new Clay.Leaderboard({id: 676});
@@ -687,6 +692,6 @@ define(["canvas",
                 { id: 676 }
             ]
         });
-    });
+    //});
     return game;
 });

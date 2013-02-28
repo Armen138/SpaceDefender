@@ -119,7 +119,7 @@ Sileni Studios: http://www.silenistudios.com
 			this.timeToLive[i] = 0.0;
 			this.freeParticles[this.nFreeParticles++] = i;
 		};
-		
+
 		// update the particle system
 		this.update = function(dt) {
 
@@ -139,11 +139,11 @@ Sileni Studios: http://www.silenistudios.com
 				if (nParticles > this.nFreeParticles) nParticles = this.nFreeParticles;
 
 				// generate them
-				//while (nParticles-- > 0) 
+				//while (nParticles-- > 0)
 				//	this.generateParticle();
 				var np = 40;
 				for(var i = 0; i < np; i++) {
-					this.generateParticle();					
+					this.generateParticle();
 				}
 			}
 
@@ -195,7 +195,7 @@ Sileni Studios: http://www.silenistudios.com
 		this.kill = function() {
 			this.effect.systemLifeSpan = .1;
 		};
-		
+
 		// draw
 		this.draw = function(canvas, x, y, dt) {
 
@@ -370,7 +370,7 @@ Sileni Studios: http://www.silenistudios.com
 		fReady = true;
 	}
 	if(typeof define !== "undefined") {
-		define({
+		define("ParticleSystem", {
 			ParticleSystem: ParticleSystem
 		});
 	} else {

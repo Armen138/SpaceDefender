@@ -1,4 +1,4 @@
-define(["canvas", "easing"], function(Canvas) {
+define("topbar", ["canvas", "easing"], function(Canvas) {
     var color = "rgba(0, 0, 0, 0.7)",
         height = 30;
 
@@ -23,12 +23,12 @@ define(["canvas", "easing"], function(Canvas) {
                     var x = Canvas.width / topbar.items.length * i + (Canvas.width / topbar.items.length / 2);
                     var label = topbar.items[i].name + ": " + topbar.items[i].obj[topbar.items[i].prop];
                     if(topbar.items[i].count && topbar.items[i].obj[topbar.items[i].countStart] !== 0) {
-                        label += " " + (topbar.items[i].count - ((Date.now() - topbar.items[i].obj[topbar.items[i].countStart]) / 1000 | 0)) + "s"; 
+                        label += " " + (topbar.items[i].count - ((Date.now() - topbar.items[i].obj[topbar.items[i].countStart]) / 1000 | 0)) + "s";
                     }
-                    Canvas.context.fillText(label, x, height / 2);    
+                    Canvas.context.fillText(label, x, height / 2);
                 }
-                
-                Canvas.context.restore();                
+
+                Canvas.context.restore();
             }
         };
         return topbar;

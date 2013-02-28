@@ -10,6 +10,7 @@
 				position: relative;
 				margin-left: auto;
 				margin-right: auto;
+				transform: translateZ(0);
 			}
 			body {
 				margin: 0;
@@ -41,26 +42,27 @@
 			}
 			.credits a {
 				text-decoration: none;
-				color: #52dcff;				
+				color: #52dcff;
 			}
 			.credits a:hover {
 				color: #007c9b;
 			}
 		</style>
 		<script type="text/javascript">
-		var Clay = Clay || {};
-		Clay.gameKey = "spacedefender";
-		Clay.readyFunctions = [];
-		Clay.ready = function( fn ) {
-		    Clay.readyFunctions.push( fn );
-		};
-		( function() {
-		    var clay = document.createElement("script");
-		    clay.src = ( "https:" == document.location.protocol ? "https://" : "http://" ) + "clay.io/api/api.js"; 
-		    var tag = document.getElementsByTagName("script")[0]; tag.parentNode.insertBefore(clay, tag);
-		} )();
-		</script>		
-		<script data-main="js/main" src="js/require.js"></script>		
+			var Clay = Clay || {};
+			Clay.gameKey = "spacedefender";
+			Clay.readyFunctions = [];
+			Clay.ready = function( fn ) {
+			    Clay.readyFunctions.push( fn );
+			};
+			Clay.ready(function() {
+				var main = document.createElement("script");
+				main.setAttribute("data-main", "js/main");
+				main.setAttribute("src", "js/require.js");
+				document.head.appendChild(main);
+			});
+		</script>
+		<script src="http://clay.io/api/api.js"></script>
 	</head>
 	<body>
 		<div class="container">

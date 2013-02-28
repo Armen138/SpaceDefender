@@ -1,4 +1,4 @@
-define(function() {
+define("easing", function() {
 	/* t=now b=start c=change d=duration*/
 	return function (t, b, c, d) {
         if ((t/=d) < (1/2.75)) {
@@ -10,5 +10,5 @@ define(function() {
         } else {
             return c*(7.5625*(t-=(2.625/2.75))*t + .984375) + b;
         }
-    };	
+    };
 });

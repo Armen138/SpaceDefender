@@ -1,10 +1,10 @@
-define(["ParticleSystem", "canvas", "effects"], function(PS, Canvas, effects) {
+define("bullet", ["ParticleSystem", "canvas", "effects"], function(PS, Canvas, effects) {
 	function distance(p1, p2) {
 		return Math.max(
 				Math.abs(p1.X - p2.X),
 				Math.abs(p1.Y - p2.Y)
 			);
-	}	
+	}
 	var bullet = function(position, enemies, options) {
 		if(!options) {
 			options = {};
@@ -21,23 +21,23 @@ define(["ParticleSystem", "canvas", "effects"], function(PS, Canvas, effects) {
 		var baseX = position.X;
 		var twistAngle = 0;
 		var rocketTrail = new PS.ParticleSystem(effects("shield"));
-		var trail = new PS.ParticleSystem(effects("bullet"));		
+		var trail = new PS.ParticleSystem(effects("bullet"));
 		var lastDraw = Date.now();
 		var b = {
 			draw: function() {
 				if(!double) {
-					trail.draw(Canvas.element, position.X, position.Y, 17);	
+					trail.draw(Canvas.element, position.X, position.Y, 17);
 				} else {
 					trail.draw(Canvas.element, position.X - 10, position.Y, 17);
-					trail.draw(Canvas.element, position.X + 10, position.Y, 17);					
+					trail.draw(Canvas.element, position.X + 10, position.Y, 17);
 				}
 				if(rocket) {
 					twistAngle += 0.4;
 					var twist = {
-						X: position.X + 16 * Math.cos(twistAngle), 
+						X: position.X + 16 * Math.cos(twistAngle),
 						Y: position.Y
 					}
-					rocketTrail.draw(Canvas.element, twist.X, twist.Y, 17);					
+					rocketTrail.draw(Canvas.element, twist.X, twist.Y, 17);
 				}
 				if(homing && enemies.length > 0) {
 					var closest = null
@@ -53,21 +53,21 @@ define(["ParticleSystem", "canvas", "effects"], function(PS, Canvas, effects) {
 					var diff ={
 						X: position.X - closest.enemy.position.X,
 						Y: position.Y - closest.enemy.position.Y
-					} 
+					}
 					if(diff.X < 0) {
 						position.X += (Date.now() - lastDraw) * speed;
 					} else {
 						position.X -= (Date.now() - lastDraw) * speed;
 					}
 					if(diff.Y < 0) {
-						position.Y += (Date.now() - lastDraw) * speed;						
+						position.Y += (Date.now() - lastDraw) * speed;
 					} else {
 						position.Y -= (Date.now() - lastDraw) * speed;
 					}
 				} else {
-					var direction = south ? -1 : 1;					
+					var direction = south ? -1 : 1;
 					position.Y = baseY - ((Date.now() - start) * speed) * direction;
-					//position.X = baseX - ((Date.now() - start) * speed);					
+					//position.X = baseX - ((Date.now() - start) * speed);
 				}
 				if (position.Y < -10 ||
 					position.Y > Canvas.height + 10 ||
@@ -86,7 +86,7 @@ define(["ParticleSystem", "canvas", "effects"], function(PS, Canvas, effects) {
 						   	trail.kill();
 						   	dead = true;
 						   }
-					}					
+					}
 				}
 				lastDraw = Date.now();
 				if(trail.isDone()) {
@@ -94,7 +94,7 @@ define(["ParticleSystem", "canvas", "effects"], function(PS, Canvas, effects) {
 				}
 				return false;
 			}
-		};	
+		};
 		return b;
 	};
 	return bullet;

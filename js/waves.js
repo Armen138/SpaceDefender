@@ -1,4 +1,4 @@
-define(function() {
+define("waves", function() {
 	return function() {
 		return [
 			{
@@ -15,7 +15,7 @@ define(function() {
 				type: "zipper",
 				delay: 500,
 				X: 100
-			},								
+			},
 			{
 				type: "hauler",
 				delay: 5000,
@@ -50,7 +50,7 @@ define(function() {
 				type: "hauler",
 				delay: 500,
 				X: 200
-			},										
+			},
 			{
 				type: "hauler",
 				delay: 1000,
@@ -96,7 +96,7 @@ define(function() {
 				type: "pirate",
 				delay: 200,
 				X: 200
-			},	
+			},
 			{
 				type: "pirate",
 				delay: 200,
@@ -136,7 +136,7 @@ define(function() {
 				type: "zipper",
 				delay: 500,
 				X: 100
-			},								
+			},
 			{
 				type: "hauler",
 				delay: 5000,
@@ -171,7 +171,7 @@ define(function() {
 				type: "hauler",
 				delay: 500,
 				X: 200
-			},										
+			},
 			{
 				type: "hauler",
 				delay: 1000,
@@ -217,7 +217,7 @@ define(function() {
 				type: "schooner",
 				delay: 700,
 				X: 200
-			},	
+			},
 			{
 				type: "schooner",
 				delay: 700,
@@ -252,7 +252,7 @@ define(function() {
 				type: "schooner",
 				delay: 700,
 				X: 200
-			},	
+			},
 			{
 				type: "schooner",
 				delay: 700,
@@ -297,7 +297,7 @@ define(function() {
 				type: "tube",
 				delay: 700,
 				X: 100
-			},								
+			},
 			{
 				type: "zipper",
 				delay: 5000,
@@ -332,7 +332,7 @@ define(function() {
 				type: "zipper",
 				delay: 500,
 				X: 200
-			},										
+			},
 			{
 				type: "zipper",
 				delay: 1000,
@@ -378,7 +378,7 @@ define(function() {
 				type: "shuttle",
 				delay: 700,
 				X: 200
-			},	
+			},
 			{
 				type: "shuttle",
 				delay: 700,
@@ -418,7 +418,7 @@ define(function() {
 				type: "tube",
 				delay: 500,
 				X: 100
-			},								
+			},
 			{
 				type: "zipper",
 				delay: 5000,
@@ -453,7 +453,7 @@ define(function() {
 				type: "zipper",
 				delay: 500,
 				X: 200
-			},										
+			},
 			{
 				type: "zipper",
 				delay: 1000,
@@ -499,7 +499,7 @@ define(function() {
 				type: "waterhauler",
 				delay: 700,
 				X: 200
-			},	
+			},
 			{
 				type: "waterhauler",
 				delay: 700,
@@ -534,7 +534,7 @@ define(function() {
 				type: "waterhauler",
 				delay: 700,
 				X: 200
-			},	
+			},
 			{
 				type: "waterhauler",
 				delay: 700,
@@ -581,7 +581,7 @@ define(function() {
 				type: "tube",
 				delay: 700,
 				X: 100
-			},								
+			},
 			{
 				type: "zipper",
 				delay: 5000,
@@ -616,7 +616,7 @@ define(function() {
 				type: "zipper",
 				delay: 500,
 				X: 200
-			},										
+			},
 			{
 				type: "zipper",
 				delay: 1000,
@@ -662,7 +662,7 @@ define(function() {
 				type: "shuttle",
 				delay: 700,
 				X: 200
-			},	
+			},
 			{
 				type: "shuttle",
 				delay: 700,
@@ -702,7 +702,7 @@ define(function() {
 				type: "tube",
 				delay: 500,
 				X: 100
-			},								
+			},
 			{
 				type: "zipper",
 				delay: 5000,
@@ -737,7 +737,7 @@ define(function() {
 				type: "zipper",
 				delay: 500,
 				X: 200
-			},										
+			},
 			{
 				type: "zipper",
 				delay: 1000,
@@ -783,7 +783,7 @@ define(function() {
 				type: "waterhauler",
 				delay: 700,
 				X: 200
-			},	
+			},
 			{
 				type: "waterhauler",
 				delay: 700,
@@ -818,7 +818,7 @@ define(function() {
 				type: "waterhauler",
 				delay: 700,
 				X: 200
-			},	
+			},
 			{
 				type: "waterhauler",
 				delay: 700,

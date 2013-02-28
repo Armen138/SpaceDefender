@@ -1,4 +1,4 @@
-define(["events"], function(events) {
+define("resources", ["events"], function(events) {
     var resources = {
         total: 0,
         loaded: 0,

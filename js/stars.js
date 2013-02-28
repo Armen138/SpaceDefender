@@ -1,4 +1,4 @@
-define(function() {
+define("stars", function() {
 	var stars = function(Canvas) {
 		var starMap = [];
 		var maxStars = 100;
@@ -6,9 +6,9 @@ define(function() {
 		for(var l = 0; l < maxLayers; l++) {
 			starMap[l] = [];
 			for(var i = 0; i < maxStars; i++) {
-				starMap[l].push({X: Math.random() * Canvas.width | 0, 
+				starMap[l].push({X: Math.random() * Canvas.width | 0,
 								Y: Math.random() * Canvas.height | 0});
-			}					
+			}
 		}
 		var s = {
 			draw: function() {
@@ -21,11 +21,11 @@ define(function() {
 						if(starMap[l][i].Y > Canvas.height) {
 							starMap[l][i].Y -= Canvas.height;
 						}
-					}					
+					}
 				}
 			}
 		}
 		return s;
 	}
-	return stars;	
+	return stars;
 });

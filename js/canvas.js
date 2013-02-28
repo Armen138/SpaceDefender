@@ -1,4 +1,4 @@
-define(function() {
+define("canvas", function() {
 	var canvas = document.getElementsByTagName("canvas")[0];
 	function Canvas(canvas) {
 		canvas = canvas || document.createElement("canvas");

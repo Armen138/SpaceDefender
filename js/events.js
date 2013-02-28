@@ -34,5 +34,5 @@
             }
         }
     };
-    define(events);
+    define("events", events);
 }());

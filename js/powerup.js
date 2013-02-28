@@ -1,4 +1,4 @@
-define(["canvas"], function(Canvas) {	
+define("powerup", ["canvas"], function(Canvas) {
 	var powerup = function(image, action, position) {
 		var start = Date.now();
 		var lastScale = 0;
@@ -22,20 +22,20 @@ define(["canvas"], function(Canvas) {
 						inc *= -1;
 					}
 				}
-				Canvas.context.save();				
+				Canvas.context.save();
 				Canvas.context.translate(position.X, position.Y);
 				Canvas.context.scale(scale, scale);
 				Canvas.context.drawImage(image, -1 * (image.width / 2) * scale,  -1 * (image.height / 2) * scale);
 				Canvas.context.restore();
 				return dead;
-			}, 
+			},
 			collect: function(target) {
 				if(distance(position, target) < 32) {
 					dead = true;
 					action.call(this);
 				}
 			}
-		};		
+		};
 	};
 	return powerup;
 })

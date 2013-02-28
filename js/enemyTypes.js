@@ -1,4 +1,4 @@
-define(["bullet", "canvas"], function(Bullet, Canvas) {
+define("enemyTypes", ["bullet", "canvas"], function(Bullet, Canvas) {
 	return function(ship) {
 		var weapons = {
 			gun: {
@@ -125,9 +125,9 @@ define(["bullet", "canvas"], function(Bullet, Canvas) {
 					hp: 30,
 					speed: 0.07,
 					movePattern: function(startPosition, position, start, speed) {
-						position.Y = startPosition.Y + ((Date.now() - start) * speed);	
+						position.Y = startPosition.Y + ((Date.now() - start) * speed);
 						position.X = startPosition.X + (150 * Math.cos(((Date.now() - start) / 1500)));
-					}					
+					}
 				}
 			},
 			"destroyer": {
@@ -143,13 +143,13 @@ define(["bullet", "canvas"], function(Bullet, Canvas) {
 					speed: 0.05,
 					score: 100,
 					movePattern: function(startPosition, position, start, speed) {
-						position.Y = startPosition.Y + ((Date.now() - start) * speed);	
+						position.Y = startPosition.Y + ((Date.now() - start) * speed);
 						position.X = startPosition.X + (100 * Math.cos(((Date.now() - start) / 1000)));
-					}					
+					}
 				}
 			},
 
 		}
-		return ships;		
+		return ships;
 	};
 });

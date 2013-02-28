@@ -1,4 +1,4 @@
-define(function() {
+define("effects", function() {
 	var enableComposite = true;
 	return function(effect, image) {
 		var e = {};

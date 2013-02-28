@@ -1,19 +1,19 @@
-define(["raf", "events"], function(raf, Events) {
+define("gamepad", ["raf", "events"], function(raf, Events) {
 	var buttonStates = [];
 	var axisStates = [];
 	var lastPad = null;
 	var padID = null;
 	var gamepad = {
 		deadzone: 0.5,
-		poll: function() {			
+		poll: function() {
 			var i;
 			var pad = navigator.webkitGetGamepads && navigator.webkitGetGamepads()[0];
 			if(pad) {
 				if(!padID) {
 					padID = pad.id;
 					console.log("gamepad: " + padID);
-				}				
-				for(i = 0; i < pad.buttons.length; i++) {					
+				}
+				for(i = 0; i < pad.buttons.length; i++) {
 					if(pad.buttons[i] !== 0) {
 						gamepad.fire("button", { which: i, action: "down"});
 						buttonStates[i] = true;
@@ -29,7 +29,7 @@ define(["raf", "events"], function(raf, Events) {
 						gamepad.fire("axis", { which: i, value: pad.axes[i], action: "engage" });
 					} else {
 						if(Math.abs(axisStates[i]) > gamepad.deadzone) {
-							gamepad.fire("axis", {which: i, value: pad.axes[i], action: "release"});									
+							gamepad.fire("axis", {which: i, value: pad.axes[i], action: "release"});
 						}
 					}
 					axisStates[i] = pad.axes[i];
@@ -46,6 +46,6 @@ define(["raf", "events"], function(raf, Events) {
 
 	Events.attach(gamepad);
 	gamepad.poll();
-					
+
 	return gamepad;
 });

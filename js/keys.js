@@ -1,4 +1,4 @@
-define({
+define("keys", {
     BACKSPACE:8,
     TAB:9,
     ENTER:13,

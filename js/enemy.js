@@ -1,4 +1,4 @@
-define(["canvas", "events"], function(Canvas, events) {
+define("enemy", ["canvas", "events"], function(Canvas, events) {
 	var enemy = function(image, position, weapon, bullets, tile, options, sound) {
 		var start = Date.now();
 		var speed = options.speed || 0.2;
@@ -57,6 +57,6 @@ define(["canvas", "events"], function(Canvas, events) {
 		};
 		events.attach(e);
 		return e;
-	};	
-	return enemy;	
+	};
+	return enemy;
 });
