@@ -252,15 +252,31 @@ define(["canvas",
             }
         },
         left: function() {
+        	if(ship.position.X < 32) {
+        		ship.position.X = 32;
+        		return;
+        	}
             ship.position.X -=10;
         },
         right: function() {
+        	if(ship.position.X > 768) {
+        		ship.position.X = 768;
+        		return;
+        	}
             ship.position.X += 10;
         },
         up: function() {
+        	if(ship.position.Y < 32) {
+        		ship.position.Y = 32;
+        		return;
+        	}
             ship.position.Y -= 10;
         },
         down: function() {
+        	if(ship.position.Y > 568) {
+        		ship.position.Y = 568;
+        		return;
+        	}        	
             ship.position.Y += 10;
         },
         fire: function() {
