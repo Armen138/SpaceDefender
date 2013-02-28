@@ -47,7 +47,20 @@
 				color: #007c9b;
 			}
 		</style>
-		<script data-main="js/main" src="js/require.js"></script>
+		<script type="text/javascript">
+		var Clay = Clay || {};
+		Clay.gameKey = "spacedefender";
+		Clay.readyFunctions = [];
+		Clay.ready = function( fn ) {
+		    Clay.readyFunctions.push( fn );
+		};
+		( function() {
+		    var clay = document.createElement("script");
+		    clay.src = ( "https:" == document.location.protocol ? "https://" : "http://" ) + "clay.io/api/api.js"; 
+		    var tag = document.getElementsByTagName("script")[0]; tag.parentNode.insertBefore(clay, tag);
+		} )();
+		</script>		
+		<script data-main="js/main" src="js/require.js"></script>		
 	</head>
 	<body>
 		<div class="container">

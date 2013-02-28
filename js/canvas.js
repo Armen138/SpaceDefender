@@ -17,7 +17,7 @@ define(function() {
 				newCanvas.size(size);
 				return newCanvas;
 			},
-			clone: function(empty) {				
+			clone: function(empty) {
 				var clone = Canvas();
 				clone.size(C.size());
 				if(!empty) {
@@ -27,13 +27,13 @@ define(function() {
 			},
 			clear: function(color) {
 				if(!color) {
-					canvas.width = canvas.width;	
+					canvas.width = canvas.width;
 				} else {
 					context.save();
 					context.fillStyle = color;
 					context.fillRect(0, 0, canvas.width, canvas.height);
 					context.restore();
-				}				
+				}
 			},
 			size: function(w, h) {
 				if(w) {
@@ -56,7 +56,20 @@ define(function() {
 			get: function() { return canvas.height; },
 			set: function(h) { canvas.height = h; }
 		});
-		return C;			
+
+		C.position = (function() {
+            var x = 0,
+                y = 0,
+                parent = C.element;
+            while(parent) {
+                x += parent.offsetLeft;
+                y += parent.offsetTop;
+                parent = parent.parentElement;
+            }
+            return {X: x, Y: y};
+        }());
+
+		return C;
 	}
 	return Canvas(canvas);
 });

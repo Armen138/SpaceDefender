@@ -57,7 +57,8 @@ define(["canvas",
         "rocket": "images/rocket.png",
         "homing": "images/on-target.png",
         "star": "images/star.png",
-        "gameover": "images/gameover.png"
+        "gameover": "images/gameover.png",
+        "winner": "images/winner.png"
     });
 
     Resources.audio = {
@@ -86,8 +87,40 @@ define(["canvas",
                 action: function() {
                     game.state = home;
                 }
+            },
+            {
+                label: "High Scores",
+                action: function() {
+                    if(game.leaderboard) {
+                        game.leaderboard.show({});
+                    }
+                }
             }
         ], Resources.images.gameover);
+
+    var winner = Menu(Canvas.element, [
+            {
+                label: "Restart",
+                action: function() {
+                    play.reset();
+                    game.state = play;
+                }
+            },
+            {
+                label: "Menu",
+                action: function() {
+                    game.state = home;
+                }
+            },
+            {
+                label: "High Scores",
+                action: function() {
+                    if(game.leaderboard) {
+                        game.leaderboard.show({});
+                    }
+                }
+            }
+        ], Resources.images.winner);
 
     var paused = Menu(Canvas.element, [
             {
@@ -100,6 +133,14 @@ define(["canvas",
                 label: "Menu",
                 action: function() {
                     game.state = home;
+                }
+            },
+            {
+                label: "High Scores",
+                action: function() {
+                    if(game.leaderboard) {
+                        game.leaderboard.show({});
+                    }
                 }
             }
         ]);
@@ -126,6 +167,14 @@ define(["canvas",
                 action: function() {
                     //alert("credits");
                     document.getElementById("credits").style.display = "block";
+                }
+            },
+            {
+                label: "High Scores",
+                action: function() {
+                    if(game.leaderboard) {
+                        game.leaderboard.show({});
+                    }
                 }
             }
         ], Resources.images.logo);
@@ -201,6 +250,19 @@ define(["canvas",
         die: function() {
             console.log("death");
             game.state = gameover;
+            if(play.mode === "survival") {
+                if(game.survivalboard) {
+                    game.survivalboard.post({ score: play.score}, function(response) {
+                        console.log(response);
+                    });
+                }
+            } else {
+                if(game.leaderboard) {
+                    game.leaderboard.post({ score: play.score}, function(response) {
+                        console.log(response);
+                    });
+                }
+            }
         },
         draw: function() {
             if(ship.currentWeapon !== weapons.gun && Date.now() - ship.weaponTime > 10000) {
@@ -379,6 +441,23 @@ define(["canvas",
                     spawnEnemy(waves[0].type, waves[0].X);
                     waves.shift();
                     play.lastSpawn = now;
+                } else {
+                    if(waves.length === 0) {
+                        game.state = winner;
+                        if(play.mode === "survival") {
+                            if(game.survivalboard) {
+                                game.survivalboard.post({ score: play.score}, function(response) {
+                                    console.log(response);
+                                });
+                            }
+                        } else {
+                            if(game.leaderboard) {
+                                game.leaderboard.post({ score: play.score}, function(response) {
+                                    console.log(response);
+                                });
+                            }
+                        }
+                    }
                 }
             }  else {
                 if(!play.lastSpawn || now - play.lastSpawn > 600) {
@@ -550,7 +629,9 @@ define(["canvas",
 
     window.addEventListener("click", function(e) {
         if(game.state && game.state.click) {
-            game.state.click({X: e.layerX, Y: e.layerY});
+            var x = e.clientX - Canvas.position.X;
+            var y = e.clientY - Canvas.position.Y;
+            game.state.click({X: x, Y: y});
         }
     });
 
@@ -595,6 +676,17 @@ define(["canvas",
                 down[keys.SPACE] = false;
             }
         }
+    });
+    Clay.ready(function() {
+        var arrayOfValues = [['row1-col1', 'row1-col2'], ['row2-col1', 'row2-col2']];
+        game.leaderboard = new Clay.Leaderboard({id: 675});
+        game.survivalboard = new Clay.Leaderboard({id: 676});
+
+        game.leaderboard.setTabs({
+            tabs: [
+                { id: 676 }
+            ]
+        });
     });
     return game;
 });
